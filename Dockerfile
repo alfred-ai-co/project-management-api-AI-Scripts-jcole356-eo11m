@@ -1,5 +1,5 @@
 # Use the official Python image from the Docker Hub
-FROM python:3.9-slim
+FROM python:3.9-slim AS base
 
 # Set the working directory in the container
 WORKDIR /app
@@ -13,13 +13,15 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the FastAPI application code into the container
 COPY . .
 
+# Set environment variables
+ENV APP_ENV=prod \
+  DB_HOST=localhost
+
 # Expose the port that the FastAPI app runs on
 EXPOSE 8000
-
-# ENV APP_ENV=prod
-# ENV DB_HOST=localhost
 
 # Command to run the FastAPI application
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
+# Healthcheck to ensure the container is running
 HEALTHCHECK CMD curl --fail http://localhost:8000/health || exit 1
